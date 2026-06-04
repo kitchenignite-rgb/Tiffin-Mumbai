@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen Dashboard · Tiffin by Dabbawala</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #FF6B00;
+    --saffron-light: #FF9A3C;
+    --green: #2D6A4F;
+    --green-light: #52B788;
+    --cream: #FFFBF5;
+    --dark: #1C1405;
+    --text: #2C1810;
+    --text-muted: #7A6050;
+    --white: #FFFFFF;
+    --border: #F0E0CC;
+    --bg: #F7F2EC;
+    --red: #E53E3E;
+    --yellow: #D97706;
+    --blue: #2B6CB0;
+    --sidebar: #1C1405;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; background: var(--sidebar); color: white;
+    display: flex; flex-direction: column; flex-shrink: 0;
+    overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-logo-icon { width: 38px; height: 38px; background: var(--saffron); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .sidebar-logo-text { line-height: 1.2; }
+  .sidebar-logo-text div:first-child { font-size: 13px; font-weight: 700; }
+  .sidebar-logo-text div:last-child { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  .sidebar-section { padding: 20px 14px 8px; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; margin: 2px 8px; border-radius: 10px;
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6);
+    cursor: pointer; transition: all 0.2s; text-decoration: none;
+  }
+  .sidebar-link:hover { background: rgba(255,255,255,0.07); color: white; }
+  .sidebar-link.active { background: var(--saffron); color: white; }
+  .sidebar-link span { font-size: 16px; }
+  .sidebar-badge { margin-left: auto; background: var(--saffron); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .sidebar-link.active .sidebar-badge { background: rgba(255,255,255,0.3); }
+
+  .sidebar-bottom { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .kitchen-status { background: rgba(82,183,136,0.15); border-radius: 10px; padding: 12px; }
+  .kitchen-status-dot { width: 8px; height: 8px; background: var(--green-light); border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  .kitchen-status-text { font-size: 12px; color: rgba(255,255,255,0.7); }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar {
+    background: white; border-bottom: 1px solid var(--border);
+    padding: 0 28px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .topbar-left h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--dark); }
+  .topbar-left p { font-size: 13px; color: var(--text-muted); }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .cutoff-badge { display: flex; align-items: center; gap: 8px; background: #FFF4EB; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--saffron); }
+  .topbar-avatar { width: 36px; height: 36px; background: var(--saffron); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; }
+
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+  /* STATS CARDS */
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+  .stat-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .stat-icon.orange { background: #FFF4EB; }
+  .stat-icon.green { background: #EDF7F2; }
+  .stat-icon.red { background: #FEF2F2; }
+  .stat-icon.blue { background: #EBF8FF; }
+  .stat-icon.purple { background: #F5F3FF; }
+  .stat-change { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 8px; }
+  .stat-change.up { background: #EDF7F2; color: var(--green); }
+  .stat-change.down { background: #FEF2F2; color: var(--red); }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--dark); }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* MEAL BREAKDOWN */
+  .meal-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .card { background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .card-title { font-weight: 700; font-size: 15px; color: var(--dark); }
+  .card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .btn-sm { font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; }
+  .btn-primary-sm { background: var(--saffron); color: white; }
+  .btn-primary-sm:hover { background: var(--dark); }
+  .btn-outline-sm { background: white; color: var(--text); border: 1.5px solid var(--border) !important; border: none; }
+  .btn-outline-sm:hover { border-color: var(--saffron); color: var(--saffron); }
+
+  /* MEAL ROWS */
+  .meal-rows { display: flex; flex-direction: column; gap: 12px; }
+  .meal-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px; background: var(--bg); border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .meal-row:hover { background: #FFF4EB; }
+  .meal-emoji { font-size: 26px; width: 40px; text-align: center; }
+  .meal-info { flex: 1; }
+  .meal-name { font-weight: 600; font-size: 14px; color: var(--dark); }
+  .meal-detail { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .meal-bar-wrap { width: 160px; }
+  .meal-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .meal-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .meal-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .meal-count { width: 60px; text-align: right; font-weight: 700; font-size: 18px; color: var(--dark); font-family: 'Playfair Display', serif; }
+  .meal-status { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+  .status-cooking { background: #FEF9C3; color: #92400E; }
+  .status-ready { background: #EDF7F2; color: var(--green); }
+  .status-pending { background: #EBF8FF; color: var(--blue); }
+  .status-done { background: #F0FFF4; color: #276749; }
+
+  /* PIE CHART */
+  .pie-section { display: flex; flex-direction: column; gap: 12px; }
+  .pie-chart { width: 140px; height: 140px; border-radius: 50%; margin: 8px auto; position: relative; }
+  .pie-legend { display: flex; flex-direction: column; gap: 8px; }
+  .pie-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .pie-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .pie-legend-label { flex: 1; color: var(--text-muted); }
+  .pie-legend-val { font-weight: 700; color: var(--dark); }
+
+  /* ORDERS TABLE */
+  .orders-table { width: 100%; border-collapse: collapse; }
+  .orders-table th {
+    text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+  }
+  .orders-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .orders-table tr:last-child td { border: none; }
+  .orders-table tr:hover td { background: var(--bg); }
+  .order-id { font-weight: 700; color: var(--saffron); font-family: monospace; }
+  .order-name { font-weight: 600; color: var(--dark); }
+  .order-addr { color: var(--text-muted); font-size: 12px; }
+  .prep-toggle {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; user-select: none;
+  }
+  .toggle {
+    width: 36px; height: 20px; background: var(--border); border-radius: 10px;
+    position: relative; transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--green); }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; background: white; border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle.on::after { transform: translateX(16px); }
+
+  /* PROGRESS BAR */
+  .progress-section { margin-bottom: 24px; }
+  .progress-bar-big { height: 12px; background: var(--border); border-radius: 6px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--saffron), var(--green-light)); border-radius: 6px; transition: width 0.8s ease; }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-tab {
+    padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; border: 1.5px solid var(--border);
+    background: white; color: var(--text-muted);
+  }
+  .filter-tab.active { background: var(--saffron); color: white; border-color: var(--saffron); }
+
+  /* DELIVERY MAP PLACEHOLDER */
+  .map-placeholder {
+    background: linear-gradient(135deg, #E8F5E9, #FFF3E0);
+    border-radius: 12px; padding: 40px 20px; text-align: center;
+    border: 1.5px dashed var(--border);
+  }
+
+  @media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .meal-grid { grid-template-columns: 1fr; }
+    .sidebar { width: 200px; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🍱</div>
+    <div class="sidebar-logo-text">
+      <div>Tiffin Dashboard</div>
+      <div>Kitchen · Mumbai</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Kitchen</div>
+  <a class="sidebar-link active" onclick="showPage('kitchen')"><span>👨‍🍳</span> Kitchen View <div class="sidebar-badge" id="newOrderBadge">24</div></a>
+  <a class="sidebar-link" onclick="showPage('prep')"><span>📋</span> Prep List</a>
+  <a class="sidebar-link" onclick="showPage('menu')"><span>🍛</span> Today's Menu</a>
+
+  <div class="sidebar-section">Operations</div>
+  <a class="sidebar-link" onclick="showPage('orders')"><span>📦</span> All Orders</a>
+  <a class="sidebar-link" onclick="showPage('delivery')"><span>🛵</span> Delivery Routes</a>
+  <a class="sidebar-link" onclick="showPage('feedback')"><span>⭐</span> Feedback</a>
+
+  <div class="sidebar-section">Admin</div>
+  <a class="sidebar-link" onclick="showPage('customers')"><span>👥</span> Customers</a>
+  <a class="sidebar-link" onclick="showPage('billing')"><span>💳</span> Billing</a>
+  <a class="sidebar-link" onclick="showPage('analytics')"><span>📊</span> Analytics</a>
+  <a class="sidebar-link" onclick="showPage('settings')"><span>⚙️</span> Settings</a>
+
+  <div class="sidebar-bottom">
+    <div class="kitchen-status">
+      <span class="kitchen-status-dot"></span>
+      <span class="kitchen-status-text">Kitchen is <strong style="color:var(--green-light)">Active</strong></span>
+      <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:4px; padding-left:14px;">Orders close 8:00 PM</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="pageTitle">Kitchen Dashboard</h1>
+      <p id="pageSubtitle">Today's orders & preparation status</p>
+    </div>
+    <div class="topbar-right">
+      <div class="cutoff-badge">⏰ <span id="kitchenCountdown">--:--:--</span> to cutoff</div>
+      <div style="font-size:13px; color:var(--text-muted);" id="kitchenDate"></div>
+      <div class="topbar-avatar">K</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="mainContent">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon orange">📦</div>
+          <div class="stat-change up">+12%</div>
+        </div>
+        <div class="stat-num">47</div>
+        <div class="stat-label">Today's Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-change up">+8</div>
+        </div>
+        <div class="stat-num">32</div>
+        <div class="stat-label">Meals Prepared</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon red">⏳</div>
+          <div class="stat-change down">-3</div>
+        </div>
+        <div class="stat-num">15</div>
+        <div class="stat-label">In Preparation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon blue">🛵</div>
+          <div class="stat-change up">Live</div>
+        </div>
+        <div class="stat-num">8</div>
+        <div class="stat-label">Out for Delivery</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon purple">💰</div>
+          <div class="stat-change up">+₹600</div>
+        </div>
+        <div class="stat-num">₹7,050</div>
+        <div class="stat-label">Today's Revenue</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="card progress-section" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Preparation Progress</div>
+          <div class="card-sub">32 of 47 meals ready (68%)</div>
+        </div>
+        <button class="btn-sm btn-primary-sm" onclick="markAllReady()">Mark All Ready</button>
+      </div>
+      <div class="progress-bar-big">
+        <div class="progress-fill" id="mainProgress" style="width:68%"></div>
+      </div>
+      <div style="display:flex; gap:16px; margin-top:12px; flex-wrap:wrap;">
+        <div style="font-size:12px; display:flex; align-items:center; gap:6px;"><div style="width:10px;height:10px;background:var(--green);border-radius:3px;"></div> <span style="color:var(--text-muted);">Done: <strong style="color:var(--dark)">32</strong></span></div>
+        <div style="font-size:12px; display:flex; align-items:center; gap:6px;"><div style="width:10px;height:10px;background:var(--yellow);border-radius:3px;"></div> <span style="color:var(--text-muted);">Cooking: <strong style="color:var(--dark)">9</strong></span></div>
+        <div style="font-size:12px; display:flex; align-items:center; gap:6px;"><div style="width:10px;height:10px;background:var(--blue);border-radius:3px;"></div> <span style="color:var(--text-muted);">Pending: <strong style="color:var(--dark)">6</strong></span></div>
+      </div>
+    </div>
+
+    <!-- MEAL BREAKDOWN + PIE -->
+    <div class="meal-grid">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Meal Category Breakdown</div>
+            <div class="card-sub">Orders by menu category today</div>
+          </div>
+          <button class="btn-sm btn-outline-sm" style="border:1.5px solid var(--border);" onclick="printPrepList()">🖨️ Print Prep List</button>
+        </div>
+        <div class="meal-rows">
+          <div class="meal-row">
+            <div class="meal-emoji">🍛</div>
+            <div class="meal-info">
+              <div class="meal-name">Rice Thali</div>
+              <div class="meal-detail">Dal Makhani + Jeera Rice + Papad</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar-label"><span>Progress</span><span>18/20</span></div>
+              <div class="meal-bar"><div class="meal-bar-fill" style="width:90%; background:var(--saffron);"></div></div>
+            </div>
+            <div class="meal-count">20</div>
+            <div class="meal-status status-cooking">Cooking</div>
+          </div>
+          <div class="meal-row">
+            <div class="meal-emoji">🫓</div>
+            <div class="meal-info">
+              <div class="meal-name">Chapati Set</div>
+              <div class="meal-detail">3 Rotis + Paneer Butter Masala</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar-label"><span>Progress</span><span>14/14</span></div>
+              <div class="meal-bar"><div class="meal-bar-fill" style="width:100%; background:var(--green);"></div></div>
+            </div>
+            <div class="meal-count">14</div>
+            <div class="meal-status status-ready">Ready ✓</div>
+          </div>
+          <div class="meal-row">
+            <div class="meal-emoji">🥗</div>
+            <div class="meal-info">
+              <div class="meal-name">Healthy Bowl</div>
+              <div class="meal-detail">Bajra + Sprout Salad + Raita</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar-label"><span>Progress</span><span>0/8</span></div>
+              <div class="meal-bar"><div class="meal-bar-fill" style="width:10%; background:var(--blue);"></div></div>
+            </div>
+            <div class="meal-count">8</div>
+            <div class="meal-status status-pending">Pending</div>
+          </div>
+          <div class="meal-row">
+            <div class="meal-emoji">✨</div>
+            <div class="meal-info">
+              <div class="meal-name">Chef's Special</div>
+              <div class="meal-detail">Mumbai Pav Bhaji with Butter</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar-label"><span>Progress</span><span>5/5</span></div>
+              <div class="meal-bar"><div class="meal-bar-fill" style="width:100%; background:var(--green-light);"></div></div>
+            </div>
+            <div class="meal-count">5</div>
+            <div class="meal-status status-done">Done ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Order Distribution</div>
+            <div class="card-sub">By meal category</div>
+          </div>
+        </div>
+        <div class="pie-section">
+          <div style="display:flex; justify-content:center; margin:8px 0;">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <!-- Rice 43% -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#FF6B00" stroke-width="22"
+                stroke-dasharray="148.5 196.5" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+              <!-- Chapati 30% -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#7C3AED" stroke-width="22"
+                stroke-dasharray="103.7 241.3" stroke-dashoffset="-148.5" transform="rotate(-90 70 70)"/>
+              <!-- Healthy 17% -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#2D6A4F" stroke-width="22"
+                stroke-dasharray="58.8 286.2" stroke-dashoffset="-252.2" transform="rotate(-90 70 70)"/>
+              <!-- Special 10% -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#D97706" stroke-width="22"
+                stroke-dasharray="34.6 310.4" stroke-dashoffset="-311" transform="rotate(-90 70 70)"/>
+              <text x="70" y="66" text-anchor="middle" fill="#1C1405" font-size="18" font-weight="900" font-family="Playfair Display">47</text>
+              <text x="70" y="80" text-anchor="middle" fill="#7A6050" font-size="10">orders</text>
+            </svg>
+          </div>
+          <div class="pie-legend">
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#FF6B00;"></div><span class="pie-legend-label">Rice Thali</span><span class="pie-legend-val">20 (43%)</span></div>
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#7C3AED;"></div><span class="pie-legend-label">Chapati Set</span><span class="pie-legend-val">14 (30%)</span></div>
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#2D6A4F;"></div><span class="pie-legend-label">Healthy Bowl</span><span class="pie-legend-val">8 (17%)</span></div>
+            <div class="pie-legend-item"><div class="pie-dot" style="background:#D97706;"></div><span class="pie-legend-label">Chef's Special</span><span class="pie-legend-val">5 (10%)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Today's Orders</div>
+          <div class="card-sub">47 orders · Update prep status below</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" placeholder="Search orders..." style="padding:8px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; color:var(--text); background:var(--bg); outline:none; font-family:'DM Sans',sans-serif;" oninput="filterOrders(this.value)">
+          <button class="btn-sm btn-primary-sm" onclick="exportOrders()">⬇️ Export</button>
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <div class="filter-tab active" onclick="setFilter('all', this)">All (47)</div>
+        <div class="filter-tab" onclick="setFilter('pending', this)">🔵 Pending (15)</div>
+        <div class="filter-tab" onclick="setFilter('cooking', this)">🟡 Cooking (9)</div>
+        <div class="filter-tab" onclick="setFilter('ready', this)">🟢 Ready (14)</div>
+        <div class="filter-tab" onclick="setFilter('delivered', this)">✅ Delivered (9)</div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="orders-table" id="ordersTable">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Meal</th>
+              <th>Qty</th>
+              <th>Society / Flat</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Prep ✓</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const orders = [
+  { id:'TBD001', name:'Priya Sharma', meal:'🍛 Rice Thali', qty:2, society:'Hiranandani', flat:'A-304', amount:300, status:'delivered', prepped:true },
+  { id:'TBD002', name:'Rajesh Mehta', meal:'🫓 Chapati Set', qty:1, society:'Powai Lake', flat:'B-102', amount:150, status:'delivered', prepped:true },
+  { id:'TBD003', name:'Sunita Nair', meal:'🥗 Healthy Bowl', qty:1, society:'Lodha Palava', flat:'C-205', amount:150, status:'pending', prepped:false },
+  { id:'TBD004', name:'Arun Kumar', meal:'✨ Chef Special', qty:3, society:'Hiranandani', flat:'D-401', amount:450, status:'ready', prepped:true },
+  { id:'TBD005', name:'Meena Iyer', meal:'🍛 Rice Thali', qty:1, society:'NRI Complex', flat:'E-507', amount:150, status:'cooking', prepped:false },
+  { id:'TBD006', name:'Vikas Joshi', meal:'🫓 Chapati Set', qty:2, society:'Powai Lake', flat:'F-301', amount:300, status:'cooking', prepped:false },
+  { id:'TBD007', name:'Anita Singh', meal:'🍛 Rice Thali', qty:1, society:'Siddharth', flat:'G-102', amount:150, status:'ready', prepped:true },
+  { id:'TBD008', name:'Deepak Rao', meal:'🥗 Healthy Bowl', qty:2, society:'Hiranandani', flat:'H-404', amount:300, status:'pending', prepped:false },
+  { id:'TBD009', name:'Kavya Patel', meal:'🫓 Chapati Set', qty:1, society:'PG Powai', flat:'Rm 12', amount:150, status:'delivered', prepped:true },
+  { id:'TBD010', name:'Suresh Gupta', meal:'✨ Chef Special', qty:1, society:'NRI Complex', flat:'A-101', amount:150, status:'pending', prepped:false },
+  { id:'TBD011', name:'Lakshmi Venkat', meal:'🍛 Rice Thali', qty:3, society:'Lodha Palava', flat:'B-304', amount:450, status:'cooking', prepped:false },
+  { id:'TBD012', name:'Rohit Das', meal:'🫓 Chapati Set', qty:1, society:'Hiranandani', flat:'C-202', amount:150, status:'ready', prepped:true },
+];
+
+const statusColors = {
+  pending: '#EBF8FF:#2B6CB0',
+  cooking: '#FEF9C3:#92400E',
+  ready: '#EDF7F2:#2D6A4F',
+  delivered: '#F0FFF4:#276749',
+};
+
+function renderOrders(data) {
+  const tbody = document.getElementById('ordersBody');
+  tbody.innerHTML = data.map(o => {
+    const [bg, col] = statusColors[o.status].split(':');
+    return `
+      <tr>
+        <td><span class="order-id">${o.id}</span></td>
+        <td><div class="order-name">${o.name}</div></td>
+        <td>${o.meal}</td>
+        <td><strong>${o.qty}</strong></td>
+        <td><div class="order-addr">${o.society}, ${o.flat}</div></td>
+        <td><strong>₹${o.amount}</strong></td>
+        <td><span style="background:${bg};color:${col};font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;white-space:nowrap;">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></td>
+        <td>
+          <div class="prep-toggle" onclick="togglePrep('${o.id}', this)">
+            <div class="toggle ${o.prepped?'on':''}"></div>
+            <span style="font-size:12px;color:var(--text-muted)">${o.prepped?'Done':'Mark'}</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+renderOrders(orders);
+
+function togglePrep(id, el) {
+  const order = orders.find(o => o.id === id);
+  if (order) {
+    order.prepped = !order.prepped;
+    const toggle = el.querySelector('.toggle');
+    const label = el.querySelector('span');
+    toggle.classList.toggle('on', order.prepped);
+    label.textContent = order.prepped ? 'Done' : 'Mark';
+    updateProgress();
+  }
+}
+
+function updateProgress() {
+  const done = orders.filter(o => o.prepped).length;
+  const pct = Math.round(done / orders.length * 100);
+  document.getElementById('mainProgress').style.width = pct + '%';
+}
+
+function filterOrders(q) {
+  const filtered = orders.filter(o =>
+    o.name.toLowerCase().includes(q.toLowerCase()) ||
+    o.id.toLowerCase().includes(q.toLowerCase()) ||
+    o.society.toLowerCase().includes(q.toLowerCase())
+  );
+  renderOrders(filtered);
+}
+
+function setFilter(status, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = status === 'all' ? orders : orders.filter(o => o.status === status);
+  renderOrders(filtered);
+}
+
+function markAllReady() {
+  orders.forEach(o => { o.prepped = true; o.status = 'ready'; });
+  renderOrders(orders);
+  document.getElementById('mainProgress').style.width = '100%';
+}
+
+function exportOrders() {
+  const csv = ['Order,Name,Meal,Qty,Society,Flat,Amount,Status',
+    ...orders.map(o => `${o.id},${o.name},${o.meal.replace(/[🍛🫓🥗✨]/g,'').trim()},${o.qty},${o.society},${o.flat},${o.amount},${o.status}`)
+  ].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `tiffin-orders-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+function printPrepList() {
+  window.print();
+}
+
+// Countdown
+function startCountdown() {
+  function update() {
+    const now = new Date();
+    const cutoff = new Date();
+    cutoff.setHours(20, 0, 0, 0);
+    if (now > cutoff) cutoff.setDate(cutoff.getDate() + 1);
+    const diff = cutoff - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const el = document.getElementById('kitchenCountdown');
+    if (el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  update(); setInterval(update, 1000);
+}
+startCountdown();
+
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const now = new Date();
+document.getElementById('kitchenDate').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
+
+function showPage(page) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  event.target.closest('.sidebar-link').classList.add('active');
+  const titles = {
+    kitchen: ['Kitchen Dashboard','Today\'s orders & preparation status'],
+    prep: ['Prep List','What to cook today'],
+    menu: ['Today\'s Menu','4 categories, 4 choices'],
+    orders: ['All Orders','Complete order management'],
+    delivery: ['Delivery Routes','Track riders & zones'],
+    feedback: ['Customer Feedback','Ratings & reviews'],
+    customers: ['Customers','Subscriber management'],
+    billing: ['Billing','Monthly invoices & payments'],
+    analytics: ['Analytics','Performance & trends'],
+    settings: ['Settings','Configure service'],
+  };
+  const [title, sub] = titles[page] || ['Dashboard',''];
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSubtitle').textContent = sub;
+}
+</script>
+</body>
+</html>
