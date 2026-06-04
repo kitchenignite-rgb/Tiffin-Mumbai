@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel · Tiffin by Dabbawala</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron:#FF6B00;--saffron-light:#FF9A3C;--green:#2D6A4F;--green-light:#52B788;
+    --cream:#FFFBF5;--dark:#1C1405;--text:#2C1810;--text-muted:#7A6050;
+    --white:#FFF;--border:#F0E0CC;--bg:#F7F2EC;
+    --red:#E53E3E;--yellow:#D97706;--blue:#2B6CB0;--purple:#7C3AED;
+    --sidebar:#12100A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+  
+  .sidebar{width:220px;background:var(--sidebar);color:white;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+  .sb-logo{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:10px}
+  .sb-logo-icon{width:36px;height:36px;background:var(--saffron);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+  .sb-logo-t div:first-child{font-size:13px;font-weight:700}
+  .sb-logo-t div:last-child{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
+  .sb-sec{padding:18px 14px 6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.2)}
+  .sb-link{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 8px;border-radius:9px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);cursor:pointer;transition:all .2s;text-decoration:none}
+  .sb-link:hover{background:rgba(255,255,255,0.07);color:white}
+  .sb-link.active{background:var(--saffron);color:white}
+  .sb-link span.ic{font-size:15px}
+  .sb-badge{margin-left:auto;background:var(--saffron);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px}
+  .sb-link.active .sb-badge{background:rgba(255,255,255,0.25)}
+  .sb-bottom{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,0.07)}
+  .admin-pill{background:rgba(255,107,0,0.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px}
+  .admin-pill span:first-child{font-size:22px}
+  .admin-pill-t div:first-child{font-size:12px;font-weight:700;color:white}
+  .admin-pill-t div:last-child{font-size:10px;color:rgba(255,255,255,0.4)}
+
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{background:white;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .topbar-l h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--dark)}
+  .topbar-l p{font-size:12px;color:var(--text-muted)}
+  .topbar-r{display:flex;align-items:center;gap:12px}
+  .topbar-btn{background:var(--bg);border:1.5px solid var(--border);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text)}
+  .topbar-btn:hover{border-color:var(--saffron);color:var(--saffron)}
+  .avatar{width:34px;height:34px;background:var(--dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white}
+
+  .content{flex:1;overflow-y:auto;padding:22px 24px}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+  .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+
+  .card{background:white;border-radius:16px;padding:22px;border:1px solid var(--border)}
+  .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .card-title{font-weight:700;font-size:14px;color:var(--dark)}
+  .card-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+  .kpi{background:white;border-radius:14px;padding:18px;border:1px solid var(--border)}
+  .kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .kpi-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+  .kpi-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--dark)}
+  .kpi-label{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .kpi-trend{font-size:11px;font-weight:600;padding:3px 8px;border-radius:7px}
+  .up{background:#EDF7F2;color:var(--green)}
+  .dn{background:#FEF2F2;color:var(--red)}
+  .neu{background:#F7F2EC;color:var(--text-muted)}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:11px 10px;border-bottom:1px solid var(--border);font-size:13px}
+  tr:last-child td{border:none}
+  tr:hover td{background:var(--bg)}
+
+  .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px;white-space:nowrap}
+  .badge-active{background:#EDF7F2;color:var(--green)}
+  .badge-paused{background:#FEF9C3;color:#92400E}
+  .badge-cancelled{background:#FEF2F2;color:var(--red)}
+  .badge-pending{background:#EBF8FF;color:var(--blue)}
+  .badge-paid{background:#EDF7F2;color:var(--green)}
+  .badge-overdue{background:#FEF2F2;color:var(--red)}
+
+  .btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+  .btn-primary{background:var(--saffron);color:white}
+  .btn-primary:hover{background:var(--dark)}
+  .btn-outline{background:white;color:var(--text);border:1.5px solid var(--border)!important;border:none}
+  .btn-outline:hover{border-color:var(--saffron)!important;color:var(--saffron)}
+  .btn-sm{padding:6px 12px;font-size:11px}
+
+  /* MINI CHART BARS */
+  .mini-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .mini-bar-label{font-size:12px;color:var(--text-muted);width:80px;text-align:right}
+  .mini-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .mini-bar-fill{height:100%;border-radius:4px}
+  .mini-bar-val{font-size:12px;font-weight:700;color:var(--dark);width:36px}
+
+  /* RIDER CARDS */
+  .rider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .rider-card{background:var(--bg);border-radius:14px;padding:16px;border:1px solid var(--border);transition:all .2s}
+  .rider-card:hover{border-color:var(--saffron)}
+  .rider-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .rider-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white}
+  .rider-name{font-weight:700;font-size:13px;color:var(--dark)}
+  .rider-zone{font-size:11px;color:var(--text-muted)}
+  .rider-stats{display:flex;gap:10px}
+  .rider-stat-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--dark)}
+  .rider-stat-label{font-size:10px;color:var(--text-muted)}
+  .rider-status-dot{width:8px;height:8px;border-radius:50%;margin-left:auto}
+  .dot-green{background:var(--green-light)}
+  .dot-yellow{background:var(--yellow)}
+  .dot-red{background:var(--red)}
+
+  /* ZONE MAP */
+  .zone-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .zone-card{background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--border)}
+  .zone-name{font-weight:700;font-size:13px;color:var(--dark);margin-bottom:4px}
+  .zone-detail{font-size:12px;color:var(--text-muted);line-height:1.5}
+  .zone-count{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--saffron)}
+
+  /* SUBSCRIPTION TABLE SEARCH */
+  .search-input{padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);background:var(--bg);outline:none;font-family:'DM Sans',sans-serif;width:200px}
+  .search-input:focus{border-color:var(--saffron)}
+
+  /* REVENUE CHART (CSS bars) */
+  .rev-chart{display:flex;align-items:flex-end;gap:8px;height:100px;margin-top:12px}
+  .rev-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .rev-bar{width:100%;border-radius:4px 4px 0 0;background:var(--saffron);opacity:0.7;transition:opacity .2s}
+  .rev-bar:hover{opacity:1}
+  .rev-bar-label{font-size:10px;color:var(--text-muted);text-align:center}
+  .rev-bar-val{font-size:9px;color:var(--text-muted);text-align:center}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px}
+  .tab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--text-muted);transition:all .2s}
+  .tab.active{background:var(--saffron);color:white;border-color:var(--saffron)}
+
+  @media(max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}.g5{grid-template-columns:repeat(3,1fr)}.rider-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:768px){.sidebar{display:none}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.content{padding:14px}}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🍱</div>
+    <div class="sb-logo-t">
+      <div>Admin Panel</div>
+      <div>Tiffin · Mumbai</div>
+    </div>
+  </div>
+
+  <div class="sb-sec">Overview</div>
+  <a class="sb-link active" onclick="switchPage('overview',this)"><span class="ic">📊</span> Overview</a>
+  <a class="sb-link" onclick="switchPage('analytics',this)"><span class="ic">📈</span> Analytics</a>
+
+  <div class="sb-sec">Operations</div>
+  <a class="sb-link" onclick="switchPage('subscribers',this)"><span class="ic">👥</span> Subscribers <div class="sb-badge">247</div></a>
+  <a class="sb-link" onclick="switchPage('orders',this)"><span class="ic">📦</span> Orders <div class="sb-badge">47</div></a>
+  <a class="sb-link" onclick="switchPage('logistics',this)"><span class="ic">🛵</span> Logistics</a>
+  <a class="sb-link" onclick="switchPage('menu',this)"><span class="ic">🍛</span> Menu Manager</a>
+
+  <div class="sb-sec">Finance</div>
+  <a class="sb-link" onclick="switchPage('billing',this)"><span class="ic">💳</span> Billing <div class="sb-badge">8</div></a>
+  <a class="sb-link" onclick="switchPage('invoices',this)"><span class="ic">🧾</span> Invoices</a>
+
+  <div class="sb-sec">Settings</div>
+  <a class="sb-link" onclick="switchPage('settings',this)"><span class="ic">⚙️</span> Settings</a>
+  <a class="sb-link" onclick="switchPage('zones',this)"><span class="ic">📍</span> Delivery Zones</a>
+
+  <div class="sb-bottom">
+    <div class="admin-pill">
+      <span>👤</span>
+      <div class="admin-pill-t">
+        <div>Admin Access</div>
+        <div>Full Permissions</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-l">
+      <h1 id="pageTitle">Overview</h1>
+      <p id="pageSubtitle">Tiffin by Dabbawala · Mumbai Operations</p>
+    </div>
+    <div class="topbar-r">
+      <button class="topbar-btn" onclick="exportAll()">⬇️ Export Report</button>
+      <button class="topbar-btn btn-primary" style="background:var(--saffron);color:white;border-color:var(--saffron);" onclick="addSubscriber()">+ Add Subscriber</button>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+
+  <div class="content" id="mainContent">
+
+    <!-- PAGE: OVERVIEW -->
+    <div id="page-overview">
+      <!-- KPIs -->
+      <div class="g5">
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FFF4EB">👥</div><span class="kpi-trend up">+12</span></div><div class="kpi-num">247</div><div class="kpi-label">Active Subscribers</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EDF7F2">📦</div><span class="kpi-trend up">+8%</span></div><div class="kpi-num">47</div><div class="kpi-label">Today's Orders</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EBF8FF">💰</div><span class="kpi-trend up">+₹600</span></div><div class="kpi-num">₹7,050</div><div class="kpi-label">Today's Revenue</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#F5F3FF">🛵</div><span class="kpi-trend neu">On Time</span></div><div class="kpi-num">96%</div><div class="kpi-label">Delivery Rate</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FEF9C3">⭐</div><span class="kpi-trend up">+0.1</span></div><div class="kpi-num">4.8</div><div class="kpi-label">Avg Rating</div></div>
+      </div>
+
+      <!-- REVENUE + ZONE -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-h">
+            <div><div class="card-title">Weekly Revenue</div><div class="card-sub">Mon–Sat · Current week</div></div>
+            <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--saffron)">₹38,850</span>
+          </div>
+          <div class="rev-chart">
+            <div class="rev-bar-wrap"><div class="rev-bar" style="height:72px"></div><div class="rev-bar-label">Mon</div><div class="rev-bar-val">₹6.4K</div></div>
+            <div class="rev-bar-wrap"><div class="rev-bar" style="height:65px"></div><div class="rev-bar-label">Tue</div><div class="rev-bar-val">₹5.8K</div></div>
+            <div class="rev-bar-wrap"><div class="rev-bar" style="height:78px;background:var(--green)"></div><div class="rev-bar-label">Wed</div><div class="rev-bar-val">₹6.9K</div></div>
+            <div class="rev-bar-wrap"><div class="rev-bar" style="height:60px"></div><div class="rev-bar-label">Thu</div><div class="rev-bar-val">₹5.4K</div></div>
+            <div class="rev-bar-wrap"><div class="rev-bar" style="height:82px;background:var(--saffron-light)"></div><div class="rev-bar-label">Fri</div><div class="rev-bar-val">₹7.3K</div></div>
+            <div class="rev-bar-wrap"><div class="rev-bar" style="height:79px"></div><div class="rev-bar-label">Sat</div><div class="rev-bar-val">₹7.05K</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Subscribers by Zone</div><div class="card-sub">Current active coverage</div></div></div>
+          <div class="zone-grid">
+            <div class="zone-card"><div class="zone-count">78</div><div class="zone-name">Andheri East/West</div><div class="zone-detail">12 societies · Rider: Suresh</div></div>
+            <div class="zone-card"><div class="zone-count">64</div><div class="zone-name">Powai & Hiranandani</div><div class="zone-detail">8 societies · Rider: Ravi</div></div>
+            <div class="zone-card"><div class="zone-count">52</div><div class="zone-name">Borivali & Kandivali</div><div class="zone-detail">10 societies · Rider: Amit</div></div>
+            <div class="zone-card"><div class="zone-count">53</div><div class="zone-name">Thane & Navi Mumbai</div><div class="zone-detail">9 societies · Rider: Deepak</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENU POPULARITY + BILLING ALERTS -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Menu Popularity (This Week)</div><div class="card-sub">Which meals customers love most</div></div></div>
+          <div style="margin-top:8px">
+            <div class="mini-bar-row"><span class="mini-bar-label">Rice Thali</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:88%;background:var(--saffron)"></div></div><span class="mini-bar-val">88%</span></div>
+            <div class="mini-bar-row"><span class="mini-bar-label">Chapati Set</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:72%;background:var(--purple)"></div></div><span class="mini-bar-val">72%</span></div>
+            <div class="mini-bar-row"><span class="mini-bar-label">Healthy Bowl</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:54%;background:var(--green)"></div></div><span class="mini-bar-val">54%</span></div>
+            <div class="mini-bar-row"><span class="mini-bar-label">Chef's Special</span><div class="mini-bar-wrap"><div class="mini-bar-fill" style="width:40%;background:var(--yellow)"></div></div><span class="mini-bar-val">40%</span></div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+            <div class="card-title" style="margin-bottom:10px">Most Popular Dish This Week</div>
+            <div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:10px;padding:12px">
+              <span style="font-size:28px">🍛</span>
+              <div><div style="font-weight:700;font-size:14px">Dal Makhani Rice Thali</div><div style="font-size:12px;color:var(--text-muted)">Ordered 142 times this week · ★ 4.9</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Billing Alerts</div><div class="card-sub">Payments needing attention</div></div><span class="badge badge-overdue">8 Overdue</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:12px">
+              <div><div style="font-weight:600;font-size:13px">Rajesh Mehta</div><div style="font-size:11px;color:var(--text-muted)">Powai Lake · ₹3,600 · 5 days overdue</div></div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-sm" style="background:#FEF9C3;color:#92400E;border:none" onclick="sendReminder('Rajesh Mehta')">Remind</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:12px">
+              <div><div style="font-weight:600;font-size:13px">Sunita Nair</div><div style="font-size:11px;color:var(--text-muted)">Lodha Palava · ₹7,200 · 2 days overdue</div></div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-sm" style="background:#FEF9C3;color:#92400E;border:none" onclick="sendReminder('Sunita Nair')">Remind</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:12px">
+              <div><div style="font-weight:600;font-size:13px">Arun Gupta</div><div style="font-size:11px;color:var(--text-muted)">Andheri West · ₹3,600 · 8 days overdue</div></div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-sm" style="background:#FEF2F2;color:var(--red);border:none" onclick="pauseSub('Arun Gupta')">Pause</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--text-muted)">Total overdue: <strong style="color:var(--red)">₹28,800</strong></span>
+            <button class="btn btn-sm btn-primary">Send All Reminders</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT SUBSCRIBERS + RIDERS -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-h">
+            <div><div class="card-title">Recent Subscribers</div><div class="card-sub">Last 7 days · 12 new joins</div></div>
+            <button class="btn btn-sm btn-primary" onclick="switchPage('subscribers', null)">View All</button>
+          </div>
+          <table>
+            <thead><tr><th>Name</th><th>Society</th><th>Plan</th><th>Status</th><th>Joined</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Kavya Patel</strong></td><td>PG Powai</td><td>Daily</td><td><span class="badge badge-active">Active</span></td><td style="color:var(--text-muted)">2 Jun</td></tr>
+              <tr><td><strong>Rohit Joshi</strong></td><td>Hiranandani</td><td>Monthly</td><td><span class="badge badge-active">Active</span></td><td style="color:var(--text-muted)">1 Jun</td></tr>
+              <tr><td><strong>Meena Sharma</strong></td><td>Lodha Palava</td><td>Monthly</td><td><span class="badge badge-pending">Trial</span></td><td style="color:var(--text-muted)">31 May</td></tr>
+              <tr><td><strong>Suresh Kumar</strong></td><td>NRI Complex</td><td>Weekly</td><td><span class="badge badge-active">Active</span></td><td style="color:var(--text-muted)">30 May</td></tr>
+              <tr><td><strong>Anita Nair</strong></td><td>Siddharth CHS</td><td>Monthly</td><td><span class="badge badge-paused">Paused</span></td><td style="color:var(--text-muted)">28 May</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Delivery Riders</div><div class="card-sub">Today's status</div></div><button class="btn btn-sm btn-primary" onclick="switchPage('logistics',null)">Manage</button></div>
+          <div class="rider-grid">
+            <div class="rider-card">
+              <div class="rider-top">
+                <div class="rider-av" style="background:var(--saffron)">S</div>
+                <div><div class="rider-name">Suresh</div><div class="rider-zone">Andheri Zone</div></div>
+                <div class="rider-status-dot dot-green"></div>
+              </div>
+              <div class="rider-stats">
+                <div><div class="rider-stat-val">18</div><div class="rider-stat-label">Delivered</div></div>
+                <div><div class="rider-stat-val">4</div><div class="rider-stat-label">Pending</div></div>
+              </div>
+            </div>
+            <div class="rider-card">
+              <div class="rider-top">
+                <div class="rider-av" style="background:var(--green)">R</div>
+                <div><div class="rider-name">Ravi</div><div class="rider-zone">Powai Zone</div></div>
+                <div class="rider-status-dot dot-green"></div>
+              </div>
+              <div class="rider-stats">
+                <div><div class="rider-stat-val">14</div><div class="rider-stat-label">Delivered</div></div>
+                <div><div class="rider-stat-val">6</div><div class="rider-stat-label">Pending</div></div>
+              </div>
+            </div>
+            <div class="rider-card">
+              <div class="rider-top">
+                <div class="rider-av" style="background:var(--blue)">A</div>
+                <div><div class="rider-name">Amit</div><div class="rider-zone">Borivali Zone</div></div>
+                <div class="rider-status-dot dot-yellow"></div>
+              </div>
+              <div class="rider-stats">
+                <div><div class="rider-stat-val">9</div><div class="rider-stat-label">Delivered</div></div>
+                <div><div class="rider-stat-val">8</div><div class="rider-stat-label">Pending</div></div>
+              </div>
+            </div>
+            <div class="rider-card">
+              <div class="rider-top">
+                <div class="rider-av" style="background:var(--purple)">D</div>
+                <div><div class="rider-name">Deepak</div><div class="rider-zone">Thane Zone</div></div>
+                <div class="rider-status-dot dot-green"></div>
+              </div>
+              <div class="rider-stats">
+                <div><div class="rider-stat-val">12</div><div class="rider-stat-label">Delivered</div></div>
+                <div><div class="rider-stat-val">5</div><div class="rider-stat-label">Pending</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: SUBSCRIBERS -->
+    <div id="page-subscribers" style="display:none">
+      <div class="g4" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EDF7F2">✅</div><span class="kpi-trend up">+12</span></div><div class="kpi-num">247</div><div class="kpi-label">Active</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FEF9C3">⏸️</div><span class="kpi-trend dn">-3</span></div><div class="kpi-num">18</div><div class="kpi-label">Paused</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EBF8FF">🆕</div><span class="kpi-trend up">+12</span></div><div class="kpi-num">12</div><div class="kpi-label">New This Week</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FEF2F2">❌</div><span class="kpi-trend dn">-2</span></div><div class="kpi-num">5</div><div class="kpi-label">Cancelled</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h">
+          <div><div class="card-title">All Subscribers</div><div class="card-sub">247 active subscriptions</div></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="search-input" placeholder="Search name, society..." oninput="filterSubs(this.value)">
+            <button class="btn btn-sm btn-primary" onclick="addSubscriber()">+ Add New</button>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="tab active" onclick="tabFilter('all',this)">All (247)</div>
+          <div class="tab" onclick="tabFilter('active',this)">Active (247)</div>
+          <div class="tab" onclick="tabFilter('paused',this)">Paused (18)</div>
+          <div class="tab" onclick="tabFilter('monthly',this)">Monthly</div>
+          <div class="tab" onclick="tabFilter('daily',this)">Daily</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table id="subTable">
+            <thead><tr><th>ID</th><th>Name</th><th>WhatsApp</th><th>Society / Flat</th><th>Plan</th><th>Meals/Month</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="subBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: LOGISTICS -->
+    <div id="page-logistics" style="display:none">
+      <div class="g4" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FFF4EB">🛵</div><span class="kpi-trend up">Active</span></div><div class="kpi-num">4</div><div class="kpi-label">Riders On Duty</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EDF7F2">✅</div><span class="kpi-trend up">96%</span></div><div class="kpi-num">53</div><div class="kpi-label">Delivered Today</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EBF8FF">⏳</div><span class="kpi-trend dn">In Progress</span></div><div class="kpi-num">23</div><div class="kpi-label">In Transit</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FEF2F2">❗</div><span class="kpi-trend dn">Check</span></div><div class="kpi-num">2</div><div class="kpi-label">Delivery Issues</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Rider Management</div><div class="card-sub">Live delivery status</div></div><button class="btn btn-sm btn-primary">+ Add Rider</button></div>
+          <table>
+            <thead><tr><th>Rider</th><th>Zone</th><th>Delivered</th><th>Pending</th><th>ETA</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Suresh K.</strong></td><td>Andheri</td><td><strong style="color:var(--green)">18</strong></td><td>4</td><td>12:30 PM</td><td><span class="badge badge-active">On Route</span></td></tr>
+              <tr><td><strong>Ravi M.</strong></td><td>Powai</td><td><strong style="color:var(--green)">14</strong></td><td>6</td><td>12:45 PM</td><td><span class="badge badge-active">On Route</span></td></tr>
+              <tr><td><strong>Amit S.</strong></td><td>Borivali</td><td><strong style="color:var(--yellow)">9</strong></td><td>8</td><td>1:15 PM</td><td><span class="badge badge-paused">Delayed</span></td></tr>
+              <tr><td><strong>Deepak R.</strong></td><td>Thane</td><td><strong style="color:var(--green)">12</strong></td><td>5</td><td>12:50 PM</td><td><span class="badge badge-active">On Route</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Delivery Zones</div><div class="card-sub">Mumbai coverage areas</div></div></div>
+          <div class="zone-grid">
+            <div class="zone-card"><div class="zone-count">78</div><div class="zone-name">Andheri E/W</div><div class="zone-detail">12 societies<br>Rider: Suresh · 22 stops</div></div>
+            <div class="zone-card"><div class="zone-count">64</div><div class="zone-name">Powai / Hiranandani</div><div class="zone-detail">8 societies<br>Rider: Ravi · 20 stops</div></div>
+            <div class="zone-card"><div class="zone-count">52</div><div class="zone-name">Borivali / Kandivali</div><div class="zone-detail">10 societies<br>Rider: Amit · 17 stops</div></div>
+            <div class="zone-card"><div class="zone-count">53</div><div class="zone-name">Thane / Navi Mumbai</div><div class="zone-detail">9 societies<br>Rider: Deepak · 17 stops</div></div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+            <button class="btn btn-sm btn-primary" style="width:100%">+ Expand to New Zone</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: BILLING -->
+    <div id="page-billing" style="display:none">
+      <div class="g4" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EDF7F2">💰</div><span class="kpi-trend up">+₹4,200</span></div><div class="kpi-num">₹89,550</div><div class="kpi-label">Monthly Revenue</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#FEF2F2">⚠️</div><span class="kpi-trend dn">8 accounts</span></div><div class="kpi-num">₹28,800</div><div class="kpi-label">Overdue</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EBF8FF">📋</div></div><div class="kpi-num">247</div><div class="kpi-label">Active Invoices</div></div>
+        <div class="kpi"><div class="kpi-top"><div class="kpi-icon" style="background:#EDF7F2">✅</div><span class="kpi-trend up">239 paid</span></div><div class="kpi-num">96.7%</div><div class="kpi-label">Collection Rate</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div><div class="card-title">Monthly Invoices</div><div class="card-sub">June 2026 · 247 subscribers</div></div><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline" style="border:1.5px solid var(--border)">🖨️ Print All</button><button class="btn btn-sm btn-primary">Send Reminders</button></div></div>
+        <table>
+          <thead><tr><th>Subscriber</th><th>Society</th><th>Plan</th><th>Meals</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Priya Sharma</strong></td><td>Hiranandani</td><td>Monthly ×2</td><td>48</td><td><strong>₹7,200</strong></td><td>5 Jun</td><td><span class="badge badge-paid">Paid ✓</span></td><td><button class="btn btn-sm" style="background:var(--bg);border:1.5px solid var(--border)">View</button></td></tr>
+            <tr><td><strong>Rajesh Mehta</strong></td><td>Powai Lake</td><td>Monthly ×1</td><td>24</td><td><strong>₹3,600</strong></td><td>1 Jun</td><td><span class="badge badge-overdue">Overdue</span></td><td><button class="btn btn-sm" style="background:#FEF9C3;color:#92400E;border:none" onclick="sendReminder('Rajesh')">Remind</button></td></tr>
+            <tr><td><strong>Sunita Nair</strong></td><td>Lodha Palava</td><td>Monthly ×2</td><td>48</td><td><strong>₹7,200</strong></td><td>3 Jun</td><td><span class="badge badge-overdue">Overdue</span></td><td><button class="btn btn-sm" style="background:#FEF9C3;color:#92400E;border:none" onclick="sendReminder('Sunita')">Remind</button></td></tr>
+            <tr><td><strong>Arun Kumar</strong></td><td>Hiranandani</td><td>Monthly ×3</td><td>72</td><td><strong>₹10,800</strong></td><td>5 Jun</td><td><span class="badge badge-paid">Paid ✓</span></td><td><button class="btn btn-sm" style="background:var(--bg);border:1.5px solid var(--border)">View</button></td></tr>
+            <tr><td><strong>Kavya Patel</strong></td><td>PG Powai</td><td>Daily</td><td>6</td><td><strong>₹900</strong></td><td>7 Jun</td><td><span class="badge badge-pending">Pending</span></td><td><button class="btn btn-sm" style="background:var(--bg);border:1.5px solid var(--border)">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const subscribers = [
+  {id:'SUB001',name:'Priya Sharma',phone:'+91 98765 43210',society:'Hiranandani Gardens',flat:'A-304',plan:'Monthly',meals:48,amount:7200,status:'active'},
+  {id:'SUB002',name:'Rajesh Mehta',phone:'+91 87654 32109',society:'Powai Lake Estate',flat:'B-102',plan:'Monthly',meals:24,amount:3600,status:'active'},
+  {id:'SUB003',name:'Sunita Nair',phone:'+91 76543 21098',society:'Lodha Palava',flat:'C-205',plan:'Monthly',meals:24,amount:3600,status:'paused'},
+  {id:'SUB004',name:'Arun Kumar',phone:'+91 65432 10987',society:'Hiranandani',flat:'D-401',plan:'Monthly',meals:72,amount:10800,status:'active'},
+  {id:'SUB005',name:'Meena Iyer',phone:'+91 54321 09876',society:'NRI Complex',flat:'E-507',plan:'Daily',meals:6,amount:900,status:'active'},
+  {id:'SUB006',name:'Vikas Joshi',phone:'+91 43210 98765',society:'Powai Lake',flat:'F-301',plan:'Weekly',meals:12,amount:1800,status:'active'},
+  {id:'SUB007',name:'Kavya Patel',phone:'+91 32109 87654',society:'PG Powai',flat:'Rm 12',plan:'Daily',meals:6,amount:900,status:'active'},
+];
+
+function renderSubs(data) {
+  document.getElementById('subBody').innerHTML = data.map(s => `
+    <tr>
+      <td><span style="font-weight:700;color:var(--saffron);font-family:monospace">${s.id}</span></td>
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--text-muted)">${s.phone}</td>
+      <td><div style="font-size:13px">${s.society}</div><div style="font-size:11px;color:var(--text-muted)">${s.flat}</div></td>
+      <td>${s.plan}</td>
+      <td>${s.meals}</td>
+      <td><strong>₹${s.amount.toLocaleString('en-IN')}</strong></td>
+      <td><span class="badge badge-${s.status}">${s.status.charAt(0).toUpperCase()+s.status.slice(1)}</span></td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="background:var(--bg);border:1.5px solid var(--border)" onclick="editSub('${s.id}')">Edit</button>
+        <button class="btn btn-sm" style="background:#FEF9C3;color:#92400E;border:none" onclick="sendReminder('${s.name}')">💬 WA</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+renderSubs(subscribers);
+
+function filterSubs(q) {
+  const f = subscribers.filter(s =>
+    s.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.society.toLowerCase().includes(q.toLowerCase()) ||
+    s.id.toLowerCase().includes(q.toLowerCase())
+  );
+  renderSubs(f);
+}
+
+function tabFilter(type, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  let f = subscribers;
+  if (type === 'active') f = subscribers.filter(s => s.status === 'active');
+  else if (type === 'paused') f = subscribers.filter(s => s.status === 'paused');
+  else if (type === 'monthly') f = subscribers.filter(s => s.plan === 'Monthly');
+  else if (type === 'daily') f = subscribers.filter(s => s.plan === 'Daily');
+  renderSubs(f);
+}
+
+function addSubscriber() {
+  const name = prompt('New subscriber name:');
+  if (name) alert(`Subscriber "${name}" added! (In production: opens full form)`);
+}
+function editSub(id) { alert(`Edit subscriber ${id} (In production: opens edit modal)`); }
+function sendReminder(name) {
+  const msg = `Hi ${name}! 🍱 This is a reminder from Tiffin by Dabbawala. Your monthly payment is due. Please pay via UPI: tiffin@dabbawala. Thank you!`;
+  window.open(`https://wa.me/919821133957?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function pauseSub(name) { alert(`Subscription paused for ${name}`); }
+function exportAll() {
+  alert('Exporting report... (In production: generates CSV/PDF)');
+}
+
+const pages = ['overview','subscribers','logistics','billing'];
+function switchPage(page, el) {
+  pages.forEach(p => {
+    const el2 = document.getElementById('page-'+p);
+    if (el2) el2.style.display = p === page ? 'block' : 'none';
+  });
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    const links = document.querySelectorAll('.sb-link');
+    links.forEach(l => { if (l.textContent.toLowerCase().includes(page)) l.classList.add('active'); });
+  }
+  const titles = {
+    overview:['Overview','Tiffin by Dabbawala · Mumbai Operations'],
+    subscribers:['Subscribers','Manage all home subscriptions'],
+    logistics:['Logistics','Rider management & delivery zones'],
+    billing:['Billing & Invoices','Monthly payments & collection'],
+    analytics:['Analytics','Performance trends'],
+    menu:['Menu Manager','Configure daily menus'],
+    settings:['Settings','Service configuration'],
+    zones:['Delivery Zones','Zone & society management'],
+    orders:['All Orders','Complete order history'],
+    invoices:['Invoices','Monthly invoice management'],
+  };
+  const [t,s] = titles[page] || ['Dashboard',''];
+  document.getElementById('pageTitle').textContent = t;
+  document.getElementById('pageSubtitle').textContent = s;
+}
+</script>
+</body>
+</html>
